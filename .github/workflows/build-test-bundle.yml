@@ -1,0 +1,30 @@
+name: Build test bundle
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v5.7.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Build Morphe bundle
+        run: ./gradlew clean :patches:buildAndroid --no-daemon
+
+      - name: Upload Morphe bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: batterypods-7.61-morphe-bundle
+          path: |
+            patches/build/libs/*.mpp
+            !patches/build/libs/*sources*.mpp
+            !patches/build/libs/*javadoc*.mpp
+          if-no-files-found: error
