@@ -33,25 +33,25 @@ object BatteryPodsIsPurchasedFingerprint : Fingerprint(
 )
 
 /**
- * Targets MainActivity.onCreate(Bundle)V.
+ * Targets BatteryPodsApplication.onCreate()V.
  *
- * Writes PURCHASED_ITEM_NO_ADS=true to SharedPreferences at the MobileAds.a()
- * injection point (after super.onCreate, context fully initialized). Covers all
+ * Writes PURCHASED_ITEM_NO_ADS=true to default SharedPreferences immediately
+ * after Application.onCreate(). Covers all
  * direct SharedPreferences read sites: MainActivity.C(Z)V, AirPodsService,
  * BatteryWidgetThemeSelectActivity, d50, wd, y4.
  *
- * Stable anchor: MobileAds.a(ContextWrapper)V — unique to this method.
+ * Stable anchor: Application.onCreate()V in the non-obfuscated application class.
  * Access flags: PUBLIC FINAL. Defining class non-obfuscated.
  */
 object BatteryPodsMainActivityOnCreateFingerprint : Fingerprint(
     returnType = "V",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    parameters = listOf("Landroid/os/Bundle;"),
-    definingClass = "Lcom/sumyapplications/bluetoothearphone/MainActivity;",
+    parameters = emptyList(),
+    definingClass = "Lcom/sumyapplications/bluetoothearphone/BatteryPodsApplication;",
     filters = listOf(
         methodCall(
-            definingClass = "Lcom/google/android/gms/ads/MobileAds;",
-            name = "a",
+            definingClass = "Landroid/app/Application;",
+            name = "onCreate",
         ),
     ),
 )

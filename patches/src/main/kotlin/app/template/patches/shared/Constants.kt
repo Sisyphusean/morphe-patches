@@ -241,7 +241,10 @@ val BATTERYPODS_COMPATIBILITY = Compatibility(
         packageName = "com.sumyapplications.bluetooth.earphone",
         apkFileType = ApkFileType.APKS,
         appIconColor = 0x4CAF50,
-        targets = listOf(AppTarget(version = "7.52", versionCode = 7520))
+        targets = listOf(
+            AppTarget(version = "7.52", versionCode = 7520),
+            AppTarget(version = "7.61", versionCode = 7610),
+        )
     )
 
 val BLEK_COMPATIBILITY = Compatibility(

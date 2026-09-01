@@ -23,9 +23,8 @@ import app.template.patches.shared.returnEarly
 // Point 1 — fb.c(Context)Z → returnEarly(true)
 //   Covers n80 overlay path and z31.b() widget path.
 //
-// Point 2 — MainActivity.onCreate(Bundle)V → inject SharedPrefs write at MobileAds.a()
+// Point 2 — BatteryPodsApplication.onCreate()V → inject SharedPrefs write after super.onCreate()
 //   Covers all direct getBoolean("PURCHASED_ITEM_NO_ADS") read sites.
-//   Injection at MobileAds.a() ensures context is fully initialized (after super.onCreate).
 @Suppress("unused")
 val batteryPodsPremiumPatch = bytecodePatch(
     name = "Unlock Premium",
@@ -45,24 +44,19 @@ val batteryPodsPremiumPatch = bytecodePatch(
 
         // Step 3: Return null from getRepeatedCheckMetadata so JWS parsing is never
         // attempted on the invalid NOT_LICENSED bundle data.
-        PairIPGetRepeatedCheckMetadataFingerprint.method.returnEarly()
-        
+        PairIPGetRepeatedCheckMetadataFingerprint.method.returnEarly(null)
+
         // Point 1: fb.c(Context)Z always returns true.
         // Covers: n80 AirPodsService overlay, z31.b() widget handler.
         BatteryPodsIsPurchasedFingerprint.method.returnEarly(true)
 
-        // Point 2: Write PURCHASED_ITEM_NO_ADS=true to SharedPreferences in onCreate.
-        // Covers: MainActivity.C(Z)V (ads), AirPodsService direct reads,
-        //         BatteryWidgetThemeSelectActivity, d50, wd, y4.
-        // Injection at MobileAds.a() index = after super.onCreate(), context ready.
+        // Point 2: Write PURCHASED_ITEM_NO_ADS=true to default SharedPreferences
+        // during application startup, immediately after super.onCreate().
         val insertIndex = BatteryPodsMainActivityOnCreateFingerprint.instructionMatches[0].index
         BatteryPodsMainActivityOnCreateFingerprint.method.addInstructions(
-            insertIndex,
+            insertIndex + 1,
             """
-                invoke-static {p0}, Lt91;->b(Landroid/content/Context;)Ljava/lang/String;
-                move-result-object v0
-                const/4 v1, 0x0
-                invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+                invoke-static {p0}, Landroidx/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
                 move-result-object v0
                 invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences${'$'}Editor;
                 move-result-object v0
