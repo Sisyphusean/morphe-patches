@@ -1,6 +1,9 @@
 name: Build test bundle
 
 on:
+  push:
+    branches:
+      - batterypods-7.61
   workflow_dispatch:
 
 jobs:
