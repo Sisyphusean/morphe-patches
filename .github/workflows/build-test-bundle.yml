@@ -20,6 +20,8 @@ jobs:
           java-version: "21"
 
       - name: Build Morphe bundle
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew clean :patches:buildAndroid --no-daemon
 
       - name: Upload Morphe bundle
